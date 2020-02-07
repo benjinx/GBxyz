@@ -1,9 +1,10 @@
 #ifndef REGISTERS_HPP
 #define REGISTERS_HPP
 
-#include <cstdint>
+#include <stdint.h>
+#include <stdbool.h>
 
-struct Registers {
+typedef struct {
     union {
         uint16_t AF;
         struct {
@@ -47,7 +48,7 @@ struct Registers {
 
     uint16_t SP;
     uint16_t PC;
-};
+} Registers;
 
 extern Registers R;
 
