@@ -133,6 +133,7 @@ int main(int argc, char* argv[])
     //LogInfo("Checksum:\t%02X %02X\n", buffer[OFF_CHECKSUM], buffer[OFF_CHECKSUM + 1]);
 #pragma endregion
 
+    R.SP = 0xFFFE;
     R.PC = 0;
 
     //printf("0x%02X\n", readByte(0x0000));

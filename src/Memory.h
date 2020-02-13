@@ -13,7 +13,4 @@ extern uint8_t BGMapData1[0x400];
 extern uint8_t BGMapData2[0x400];
 extern uint8_t OAM[0xA0];
 
-uint8_t ROM;
-uint8_t ROM0;
-
 #endif // MEMORY_HPP
