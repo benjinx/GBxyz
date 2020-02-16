@@ -1,16 +1,16 @@
-#include "../Memory.h"
+#include "../memory.h"
 
-static void NOP()
+static void _NOP()
 {
 
 }
 
-static void halt()
+static void _HALT()
 {
     CPUEnable = false;
 }
 
-static void stop()
+static void _STOP()
 {
 
 }

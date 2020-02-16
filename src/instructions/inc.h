@@ -1,5 +1,5 @@
-#include "../Memory.h"
-#include "../Registers.h"
+#include "../memory.h"
+#include "../registers.h"
 
 static void _INC_BC()
 {

@@ -1,7 +1,7 @@
-#include "Memory.h"
-#include "Bootstrap.h"
-#include "Registers.h"
-#include "Log.h"
+#include "memory.h"
+#include "bootstrap.h"
+#include "registers.h"
+#include "log.h"
 
 uint8_t CharacterRAM[0x1800];
 uint8_t BGMapData1[0x400];
@@ -162,9 +162,10 @@ bool loadROM(const char* filename)
     size_t size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    ROM = ROM0 = (uint8_t*)malloc(size);
+    ROM0 = (uint8_t*)malloc(size);
+    ROM = ROM0 + 0x4000;
 
-    size_t bytesRead = fread(ROM, 1, size, file);
+    size_t bytesRead = fread(ROM0, 1, size, file);
     fclose(file);
 
     LogVerbose("Read %zu bytes\n", bytesRead);

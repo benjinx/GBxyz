@@ -1,5 +1,5 @@
-#include "../Memory.h"
-#include "../Registers.h"
+#include "../memory.h"
+#include "../registers.h"
 
 static void _LD_B_B()
 {
@@ -440,4 +440,45 @@ static void _LD_A_pnn()
 {
     uint16_t nn = nextWord();
     R.A = readByte(nn);
+}
+
+static void _LD_BC_nn()
+{
+    uint16_t nn = nextWord();
+    R.BC = nn;
+}
+
+static void _LD_DE_nn()
+{
+    uint16_t nn = nextWord();
+    R.DE = nn;
+}
+
+static void _LD_HL_nn()
+{
+    uint16_t nn = nextWord();
+    R.HL = nn;
+}
+
+static void _LD_SP_nn()
+{
+    uint16_t nn = nextWord();
+    R.SP = nn;
+}
+
+static void _LD_SP_HL()
+{
+    R.SP = R.HL;
+}
+
+static void _LD_pnn_SP()
+{
+    uint16_t nn = nextWord();
+    nn = readWord(nn);
+    writeWord(nn, R.SP);
+}
+
+static void _LD_HL_SP_n()
+{
+    
 }

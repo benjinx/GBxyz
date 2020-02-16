@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include "Log.h"
-#include "Registers.h"
-#include "Memory.h"
+#include "log.h"
+#include "registers.h"
+#include "memory.h"
 
 void fetch() {
     auto byteToPrint = readByte(R.PC);
