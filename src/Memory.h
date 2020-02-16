@@ -12,5 +12,6 @@ extern uint8_t CharacterRAM[0x1800];
 extern uint8_t BGMapData1[0x400];
 extern uint8_t BGMapData2[0x400];
 extern uint8_t OAM[0xA0];
+extern bool CPUEnable;
 
 #endif // MEMORY_HPP
