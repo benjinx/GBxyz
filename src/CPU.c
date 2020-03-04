@@ -1,3 +1,5 @@
+#include "cpu.h"
+
 #include "instructions/dec.h"
 #include "instructions/inc.h"
 #include "instructions/jump.h"
@@ -7,7 +9,8 @@
 #include "instructions/push.h"
 #include "instructions/restart.h"
 
-typedef void(*inst_t)();
+#include "log.h"
+#include <SDL.h>
 
 inst_t instructions[0x100] = {
     // CB
@@ -286,3 +289,21 @@ inst_t instructions[0x100] = {
     [0xFD] = NULL,
 };
 
+uint8_t fetch() {
+    uint8_t op = nextByte();
+    return op;
+}
+
+void execute(uint8_t op) {
+    inst_t inst = instructions[op];
+    if (inst)
+    {
+        inst();
+    }
+    else
+    {
+        LogError("Unknown Instruction at %04X, %02X", R.PC, op);
+        SDL_Delay(3000);
+        exit(1);
+    }
+}

@@ -3,12 +3,9 @@
 #include "log.h"
 #include "registers.h"
 #include "memory.h"
+#include "cpu.h"
 
-void fetch() {
-    auto byteToPrint = readByte(R.PC);
-    R.PC++;
-    LogInfo("0x%02X\n", byteToPrint);
-}
+#include <SDL.h>
 
 const uint8_t NINTENDO_MAGIC[] = {
     0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D,
@@ -67,118 +64,78 @@ int main(int argc, char* argv[])
         LogError("Too many arguments.\n");
         return 1;
     }
+    SDL_Init(SDL_INIT_EVERYTHING);
+
+    SDL_Window* window;
+    int SCALE = 3;
+
+    window = SDL_CreateWindow(
+        "GBxyz",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        160 * SCALE,
+        144 * SCALE,
+        0);
 
     loadROM(argv[1]);
-
-#pragma region ROMPrinting
-
-    //// Print the file as hex
-    ////PrintFileHex(buffer);
-
-    //// Start Reading the buffer
-    //printf("Start Code:\t%02X %02X %02X %02X\n", buffer[OFF_BEGIN_CODE], buffer[OFF_BEGIN_CODE + 1], buffer[OFF_BEGIN_CODE + 2], buffer[OFF_BEGIN_CODE + 3]);
-
-    //// Verify the nintendo magic
-    //if (memcmp(buffer.data() + OFF_MAGIC_START, NINTENDO_MAGIC, sizeof(NINTENDO_MAGIC)) != 0)
-    //{
-    //    LogError("NINTENDO MAGIC DOES NOT MATCH.\n");
-    //    EXIT_FAILURE;
-    //}
-    //
-    //// Print Title
-    //int length = OFF_TITLE_END - OFF_TITLE_START;
-    //
-    //LogInfo("Title:\t%.*s\n", length, buffer.data() + OFF_TITLE_START);
-
-    //// Color
-    //if (buffer[OFF_COLOR_ENABLE] == 0x80)
-    //{
-    //    LogInfo("Color Enable:\tTrue\n");
-    //}
-    //else
-    //{
-    //    LogInfo("Color Enable:\tFalse\n");
-    //}
-
-    //// Super
-    //if (buffer[OFF_SUPER_ENABLE] == 0x00)
-    //{
-    //    LogInfo("Super Gameboy:\tFalse\n");
-    //}
-    //else
-    //{
-    //    LogInfo("Super Gameboy:\tTrue\n");
-    //}
-
-    //// Cartridge Type
-    //LogInfo("Cartridge Type:\t%02X\n", buffer[OFF_CARTRIDGE_TYPE]);
-
-    //// Rom Size
-    //LogInfo("Rom Size:\t%02X\n", buffer[OFF_ROM_SIZE]);
-
-    //// Ram Size
-    //LogInfo("Ram Size:\t%02X\n", buffer[OFF_RAM_SIZE]);
-
-    //// Region
-    //if (buffer[OFF_REGION] == 0)
-    //{
-    //    LogInfo("Region:\tJapan\n");
-    //}
-    //else
-    //{
-    //    LogInfo("Region:\tNon-Japan\n");
-    //}
-
-    //// Check Sum
-    //LogInfo("Checksum:\t%02X %02X\n", buffer[OFF_CHECKSUM], buffer[OFF_CHECKSUM + 1]);
-#pragma endregion
 
     R.SP = 0xFFFE;
     R.PC = 0;
 
-    //printf("0x%02X\n", readByte(0x0000));
-    // Step 1
-    fetch();
+    SDL_Renderer* r = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
+    if (!r)
+    {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "Renderer not created.", window);
+        exit(1);
+    }
 
-    // Step 2
-    R.SP = readWord(R.PC);
-    R.PC += 2;
-    LogInfo("0x%04X\n", R.SP);
+    SDL_Texture* tex = SDL_CreateTexture(r, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, 256, 256);
 
-    // Step 3
-    fetch();
-
-    // Step 4
-    R.A = 0;
     
-    // Step 5
-    fetch();
+    uint8_t* pixels = NULL;
+    int pitch = 0;
+    SDL_LockTexture(tex, NULL, (void**)&pixels, &pitch);
 
-    // Step 6
-    R.HL = readWord(R.PC);
-    R.PC += 2;
-    LogInfo("0x%04X\n", R.HL);
+    for (unsigned y = 0; y < 144; ++y) {
+        for (unsigned x = 0; x < 160; ++x) {
+            unsigned off = (y * 256 * 3) + (x * 3);
+            pixels[off + 0] = 0xFF; // R
+            pixels[off + 1] = 0x00; // G
+            pixels[off + 2] = 0x00; // B
+        }
+    }
 
-    // Step 7
-    fetch();
+    SDL_UnlockTexture(tex);
 
-    // Step 8
-    //R.A = readByte(R.HL);
-    //LogInfo("0x%02X\n", R.A);
 
-    // Step 9
-    fetch();
 
-    // Step 10
-    fetch();
+    // Rect
+    
+    SDL_Rect src = { .x = 0, .y = 0, .w = 160, .h = 144 };
+    SDL_Rect dst = { .x = 0, .y = 0, .w = 160 * SCALE, .h = 144 * SCALE, };
 
-    // Step 11
-    fetch();
+    SDL_Event ev;
 
-    // Step 12
+    for (;;)
+    {
+        while (SDL_PollEvent(&ev))
+        {
+            if (ev.type == SDL_QUIT)
+            {
+                exit(0);
+            }
+        }
+        
+        //SDL_RenderClear(r);
+        SDL_RenderCopy(r, tex, &src, &dst);
+        SDL_RenderPresent(r);
+        //uint8_t op = fetch();
+        //execute(op);
+    }
 
-    // Step 13
-    fetch();
-
+    SDL_DestroyTexture(tex);
+    SDL_DestroyRenderer(r);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
     return 0;
 }
